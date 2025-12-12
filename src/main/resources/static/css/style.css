@@ -1,0 +1,36 @@
+/* paste into src/main/resources/static/css/style.css */
+*{box-sizing:border-box}
+body{font-family:system-ui,Arial;margin:0;background:#f5f6f8;color:#111}
+.app-shell{display:flex;min-height:100vh}
+.left-col{width:64px;display:flex;align-items:flex-start;justify-content:center;padding:20px;background:#fff;border-right:1px solid #e6e6e6}
+.main-col{flex:1;padding:18px 24px}
+.right-col{width:220px;padding:20px;background:#fff;border-left:1px solid #e6e6e6;position:relative}
+.plus-btn{width:44px;height:44px;border-radius:10px;font-size:28px;border:none;background:#0b7a3f;color:#fff;cursor:pointer}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.brand{font-weight:700;font-size:18px}
+.profile-icon{cursor:pointer;padding:6px 10px;border-radius:6px;background:#eef;display:inline-block}
+.create-area{background:#fff;padding:12px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:16px}
+.create-area input, .create-area textarea{width:100%;padding:8px;margin:6px 0;border:1px solid #ddd;border-radius:6px}
+.create-actions{display:flex;gap:8px}
+.posts-list{display:flex;flex-direction:column;gap:12px}
+.post-card{background:#fff;padding:12px;border-radius:8px;border:1px solid #eee}
+.post-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;color:#666;font-size:13px}
+.post-author{font-weight:600}
+.post-content{margin:6px 0 10px}
+.post-actions{display:flex;gap:10px}
+.post-actions button{background:none;border:none;cursor:pointer;color:#0b7a3f}
+.profile-menu{position:fixed;right:20px;top:70px;width:220px;background:#fff;border:1px solid #e6e6e6;padding:12px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.profile-info{padding-bottom:8px;border-bottom:1px solid #f0f0f0;margin-bottom:8px}
+.hidden{display:none}
+.message{color:#b00020}
+/* Comments UI */
+.comments-section { margin-top:10px; padding:10px 12px; background:#fbfbfb; border-radius:6px; border:1px solid #ececec; }
+.comment { padding:8px 6px; border-bottom:1px solid #f0f0f0; }
+.comment:last-child { border-bottom: none; }
+.comment-author { font-weight:600; margin-right:8px; font-size:13px; }
+.comment-time { color:#999; font-size:12px; margin-left:6px; }
+.comment-content { margin-top:6px; white-space:pre-wrap; }
+.comment-input-row { display:flex; gap:8px; margin-top:8px; }
+.comment-input-row textarea { flex:1; min-height:48px; padding:6px; border-radius:6px; border:1px solid #ddd; }
+.comment-input-row button { padding:8px 12px; border-radius:6px; border:none; background:#0b7a3f; color:#fff; cursor:pointer; }
+.btn-comment.toggle-on { background:#e6f6ed; color:#0b7a3f; border-radius:6px; padding:4px 8px; }

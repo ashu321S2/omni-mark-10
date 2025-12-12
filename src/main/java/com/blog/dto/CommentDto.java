@@ -1,16 +1,18 @@
 package com.blog.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import java.time.LocalDateTime;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CommentDto {
 
     private Long id;
     private Long postId;
-
-    @NotBlank(message = "Comment content is required")
-    private String content;
-
     private String authorUsername;
+    private String content;
+    private LocalDateTime createdAt;
 }

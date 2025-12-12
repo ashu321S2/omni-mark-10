@@ -1,74 +1,103 @@
 package com.blog.service;
 
 import com.blog.dto.CommentDto;
-import com.blog.entity.Comment;
 import com.blog.entity.Post;
+import com.blog.entity.PostComment;
 import com.blog.entity.User;
 import com.blog.exception.ResourceNotFoundException;
-import com.blog.repository.CommentRepository;
+import com.blog.repository.PostCommentRepository;
 import com.blog.repository.PostRepository;
 import com.blog.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-    private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
-    private final UserRepository userRepository;
+
+    private final PostRepository postRepo;
+    private final UserRepository userRepo;
+    private final PostCommentRepository commentRepo;
 
     @Override
-    public CommentDto addComment(CommentDto dto, String username) {
-        Post post = postRepository.findById(dto.getPostId()).orElseThrow(() -> new ResourceNotFoundException("Post not found"));
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        Comment comment = Comment.builder()
+    public List<CommentDto> getComments(Long postId) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        return commentRepo.findByPostOrderByCreatedAtDesc(post)
+                .stream()
+                .map(c -> CommentDto.builder()
+                        .id(c.getId())
+                        .postId(post.getId())
+                        .authorUsername(c.getUser().getUsername())
+                        .content(c.getContent())
+                        .createdAt(c.getCreatedAt())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto addComment(Long postId, String username, String content) {
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        PostComment comment = PostComment.builder()
                 .post(post)
-                .content(dto.getContent())
-                .author(user)
+                .user(user)
+                .content(content)
                 .build();
-        Comment saved = commentRepository.save(comment);
-        return mapToDto(saved);
+
+        PostComment saved = commentRepo.save(comment);
+        Integer current = post.getComments();
+        if (current == null) current = 0;
+        post.setComments(current + 1);
+        postRepo.save(post); 
+        return CommentDto.builder()
+                .id(saved.getId())
+                .postId(post.getId())
+                .authorUsername(user.getUsername())
+                .content(saved.getContent())
+                .createdAt(saved.getCreatedAt())
+                .build();
     }
 
     @Override
-    public List<CommentDto> getCommentsByPost(Long postId) {
-        return commentRepository.findByPostId(postId).stream().map(this::mapToDto).collect(Collectors.toList());
-    }
+    @Transactional
+    public void deleteComment(Long commentId, String username) {
+        PostComment comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
 
-    @Override
-    public CommentDto getCommentById(Long id) {
-        return commentRepository.findById(id).map(this::mapToDto).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
-    }
-
-    @Override
-    public CommentDto updateComment(Long id, CommentDto dto, String username) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
-        if (!comment.getAuthor().getUsername().equals(username)) {
-            throw new RuntimeException("Not authorized to update this comment");
-        }
-        comment.setContent(dto.getContent());
-        Comment updated = commentRepository.save(comment);
-        return mapToDto(updated);
-    }
-
-    @Override
-    public void deleteComment(Long id, String username) {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Comment not found"));
-        if (!comment.getAuthor().getUsername().equals(username)) {
+        // make sure the requesting user is the comment author (or admin check if you want)
+        if (comment.getUser() == null || !comment.getUser().getUsername().equals(username)) {
             throw new RuntimeException("Not authorized to delete this comment");
         }
-        commentRepository.delete(comment);
-    }
 
-    private CommentDto mapToDto(Comment c) {
-        return CommentDto.builder()
-                .id(c.getId())
-                .postId(c.getPost() != null ? c.getPost().getId() : null)
-                .content(c.getContent())
-                .authorUsername(c.getAuthor() != null ? c.getAuthor().getUsername() : null)
-                .build();
+        Post post = comment.getPost();
+        if (post == null) {
+            // still delete the comment but guard
+            commentRepo.delete(comment);
+            return;
+        }
+
+        // delete the comment
+        commentRepo.delete(comment);
+
+        // decrement comment count safely and save post
+        int current = post.getComments() == 0 ? 0 : post.getComments();
+        if (current > 0) {
+            post.setComments(current - 1);
+        } else {
+            post.setComments(0);
+        }
+        postRepo.save(post);
     }
 }

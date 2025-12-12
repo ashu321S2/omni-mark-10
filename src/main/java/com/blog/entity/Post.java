@@ -17,12 +17,16 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="author_id")
     private User author;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // optional aggregates stored for quick display
+    private int likes = 0;
+    private int comments = 0;
 
     @PrePersist
     protected void onCreate() {

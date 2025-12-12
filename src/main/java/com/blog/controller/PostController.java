@@ -6,11 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,35 +22,35 @@ public class PostController {
 
     private final PostService postService;
 
-    // ---------------------------------------------
     // Create Post (Authenticated users)
-    // ---------------------------------------------
     @PostMapping
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto dto, Principal principal) {
         PostDto created = postService.createPost(dto, principal.getName());
-        return ResponseEntity.ok(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // ---------------------------------------------
-    // Get All Posts (with Pagination + Sorting)
-    // ---------------------------------------------
+    // Get All Posts (with Pagination + Sorting) - default newest first
     @GetMapping
     public ResponseEntity<Page<PostDto>> getAllPosts(
-            @PageableDefault(size = 10, sort = "createdAt") Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
+ // Like a post (toggle). Authenticated.
+    @PostMapping("/{id}/like")
+    public ResponseEntity<?> likePost(@PathVariable("id") Long id, Principal principal) {
+        postService.likePost(id, principal.getName());
+        return ResponseEntity.ok().build();
+    }
 
-    // ---------------------------------------------
+    
+
     // Get Single Post
-    // ---------------------------------------------
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
-    // ---------------------------------------------
     // Update Post (User can update only their post)
-    // ---------------------------------------------
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> updatePost(
             @PathVariable Long id,
@@ -59,18 +62,14 @@ public class PostController {
         );
     }
 
-    // ---------------------------------------------
     // Delete Post (User can delete only their post)
-    // ---------------------------------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id, Principal principal) {
         postService.deletePost(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
 
-    // ---------------------------------------------
-    // 🔥 ADMIN DELETE ROUTE — can delete ANY post
-    // ---------------------------------------------
+    // ADMIN DELETE ROUTE — can delete ANY post
     @DeleteMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> adminDeletePost(@PathVariable Long id) {

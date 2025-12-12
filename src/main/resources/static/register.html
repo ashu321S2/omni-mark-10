@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Blog App — Register</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#f4f6f8}
+    .card{width:380px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
+    input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ddd}
+    button{width:100%;padding:10px;border-radius:6px;border:0;background:#0b74de;color:#fff;font-weight:600}
+    .link{margin-top:12px;text-align:center}
+    .message{color:#b00020;min-height:18px;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin:0 0 8px 0">Register</h2>
+
+    <input id="name" placeholder="Name">
+    <input id="username" placeholder="Username">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button id="btnRegister" type="button">Register</button>
+
+    <div class="link">
+      <small>Already have an account? <a href="index.html">Login here</a></small>
+    </div>
+
+    <p id="registerMessage" class="message"></p>
+  </div>
+
+  <script src="js/register.js"></script>
+</body>
+</html>

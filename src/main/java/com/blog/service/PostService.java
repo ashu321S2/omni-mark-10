@@ -1,8 +1,11 @@
 package com.blog.service;
 
+import com.blog.dto.CommentDto;
 import com.blog.dto.PostDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface PostService {
 
@@ -16,6 +19,14 @@ public interface PostService {
 
     void deletePost(Long id, String username);
 
-    // Admin delete (from your Step 3)
     void adminDeletePost(Long id);
+
+    // likes
+    void likePost(Long postId, String username);
+    long getLikesCount(Long postId);
+
+    // comments
+    CommentDto addComment(Long postId, String username, String content);
+    List<CommentDto> getComments(Long postId);
+    long getCommentsCount(Long postId);
 }

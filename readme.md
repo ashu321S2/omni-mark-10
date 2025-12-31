@@ -1,215 +1,97 @@
-📘 Blog API – Spring Boot + JWT + Swagger
+🚀 The Full-Stack Odyssey: Deploying a Scalable Spring Boot App on AKS with DuckDNS & Let’s Encrypt
 
-A RESTful blog management API built using Spring Boot, Spring Security (JWT), MySQL, Swagger, and JUnit tests.
-Supports user authentication, blog post management, and commenting features with role-based access.
+Building an application is only half the battle—the real magic begins when you move it from localhost:8080 to a globally accessible, secure, production-ready environment.
 
-🚀 Features
+This project was a deep dive into the modern cloud-native ecosystem, combining backend development, containerization, orchestration, and real-world DevOps problem-solving. It was as much a journey through infrastructure as it was through code.
 
-✔ User authentication (Register & Login)
-✔ JWT-based authorization with Bearer tokens
-✔ CRUD for Blog Posts
-✔ CRUD for Comments
-✔ Pagination & Sorting for posts
-✔ Validation & Global Exception Handling
-✔ Unit & Integration Tests
-✔ Swagger UI for API testing
-✔ MySQL database support
-✔ Role-based access (USER / ADMIN)
+🧩 Project Overview
 
-🗄️ Tech Stack
-Backend	- Spring Boot
-Authentication	- Spring Security + JWT
-Database - MySQL
-Testing	- JUnit + MockMvc 
-API Docs - Swagger 
-Build - Maven
+The journey began with Spring Boot, where I developed a robust REST API to handle all blog-related logic. To keep deployment simple and efficient, the frontend assets were embedded directly into:
 
-⚙️ Installation & Setup
+src/main/resources/static
 
-1️⃣ Clone the Repository
 
-git clone <your-github-repo-url>
-cd blog-api
+This approach allowed the entire application (backend + frontend) to be packaged into a single, portable JAR file—easy to ship, easy to run.
 
-2️⃣ Database Setup
+🐳 Dockerization
 
-Create MySQL database:
+To ensure environment consistency, the application and its MySQL database were containerized using Docker. This eliminated “works on my machine” issues and laid the foundation for cloud deployment.
 
-CREATE DATABASE blogdb;
+However, containers alone aren’t enough for production.
 
-Or import SQL from:
+☸️ Kubernetes & AKS Deployment
 
-📁 docs/schema.sql
+The next step was Kubernetes orchestration, followed by migration to Azure Kubernetes Service (AKS) for managed scalability and reliability.
 
-3️⃣ Configure Database
+Key milestones during this phase:
 
-Edit application.properties:
+Deploying services and deployments on AKS
 
-spring.datasource.url=jdbc:mysql://localhost:3306/blogdb
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-spring.jpa.hibernate.ddl-auto=update
-⚠️ Replace DB username & password as per your machine.
+Managing persistent storage using Kubernetes volumes
 
-4️⃣ Build & Run
-mvn clean install
-mvn spring-boot:run
+Exposing services securely via Ingress
 
-🌐 Swagger API Documentation
+🌐 Domain & Security
 
-After starting the application, open:
+To make the application publicly accessible and secure:
 
-👉 http://localhost:8080/swagger-ui/index.html
+DuckDNS was used to configure a free, dynamic custom domain
 
-### 📌 Swagger API Endpoints
-This screenshot shows the documented controllers and routes available in the Blog API through Swagger UI.
+cert-manager was integrated to automate TLS certificate management
 
-![Swagger Endpoints](docs/screenshots/swagger-endpoints.png)
+Let’s Encrypt provided HTTPS using the HTTP-01 challenge
 
-Enable JWT Authorization in Swagger:
+This resulted in a fully HTTPS-secured application with automatic certificate renewal.
 
-Click Authorize
+⚠️ Challenges Faced (And Solved)
 
-Enter:
-Bearer <your-jwt-token>
+This project wasn’t without obstacles—and each one became a learning opportunity:
 
-### 🔐 JWT Authorization in Swagger
-![Swagger Authorization](docs/screenshots/swagger-auth.png)
+503 Service Unavailable errors due to misconfigured Ingress and service ports
 
-Click Authorize → Close
+AKS Node CPU exhaustion, which required scaling node pools
 
-Now protected endpoints will work.
+Multi-Attach Volume errors when pods attempted to mount the same disk across nodes
 
-🔐 Authentication Endpoints
-Register User
+Debugging Kubernetes resources using real production logs and events
 
-POST /api/auth/register
+Each issue strengthened my understanding of Kubernetes internals and cloud operations.
 
-Body:
+✅ Final Outcome
 
-{
-  "username": "demo",
-  "password": "123456",
-  "email": "demo@gmail.com"
-}
+Today, the application is live and production-ready:
 
-Login
+Cloud-native
 
-POST /api/auth/login
+Fully containerized
 
-Body:
+Scalable via AKS
 
-{
-  "username": "demo",
-  "password": "123456"
-}
+Secured with HTTPS
 
+Automated from deployment to certificate renewal
 
-Response:
+This project proves one thing:
 
-{
-  "token": "JWT-TOKEN-HERE"
-}
+With enough troubleshooting and the right tools, the cloud is just a playground for great code.
 
+🛠 Tech Stack Summary
+Layer	Technology Used
+Backend / UI	Spring Boot (Java) + Embedded Frontend
+Database	MySQL (StatefulSet)
+Containerization	Docker + Azure Container Registry (ACR)
+Orchestration	Azure Kubernetes Service (AKS)
+DNS	DuckDNS
+Security	Let’s Encrypt + cert-manager (HTTP-01)
+🧭 Lessons Learned
+1️⃣ Infrastructure Matters
 
-Use JWT token for authorization:
+Node sizing is critical—small clusters fill up faster than you expect.
 
-Authorization: Bearer <token>
+2️⃣ Logs Are Your Best Friend
 
-✏️ Post API Endpoints
-Create Post
+kubectl describe and kubectl logs are your only maps in the Kubernetes wilderness.
 
-POST /api/posts
+3️⃣ Automate Everything
 
-Body:
-
-{
-  "title": "First Blog",
-  "content": "This is my first post"
-}
-
-
-![Post Content](docs/screenshots/postcontent.png)
-
-
-Get All Posts
-
-GET /api/posts?page=0&size=5&sort=createdAt,desc
-
-Get Post by ID
-
-GET /api/posts/{id}
-
-### ✔ Successful Authorized Request
-![Swagger Authorized Call](docs/screenshots/swagger-authorized.png)
-Update Post
-
-PUT /api/posts/{id}
-
-Delete Post
-
-DELETE /api/posts/{id}
-
-💬 Comment API Endpoints
-
-Add Comment
-
-POST /api/comments
-
-Body:
-
-{
-  "postId": 1,
-  "content": "Nice blog"
-}
-
-Get Comments by Post
-
-GET /api/comments?postId=1
-
-🧪 Testing
-
-We use:
-
-@SpringBootTest → App context test
-
-@WebMvcTest → Controller test using MockMvc
-
-@DataJpaTest → Repository test with in-memory DB
-
-Run tests:
-
-mvn test
-
-All tests must show GREEN bar to confirm API is working.
-![Test Result](docs/screenshots/test.png)
-
-
-📄 Database Schema
-
-Schema file is available at:
-
-📁 docs/schema.sql
-
-Contains tables:
-
-Users
-
-Posts
-
-Comments
-
-📤 Project Deliverables
-
-This project satisfies:
-
-✔ Fully functional RESTful API
-✔ Database schema and SQL script
-✔ Comprehensive Swagger documentation
-✔ Unit and integration tests
-✔ GitHub repository with complete source code
-
-👏 Author
-
-✍️ Developed by: Ashutosh Kumar
-📅 Year: 2025
+Let’s Encrypt and cert-manager remove the pain from SSL—once you get past the dreaded “Pending” state

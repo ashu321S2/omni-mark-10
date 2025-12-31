@@ -1,36 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Blog App — Register</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family:system-ui,Arial;margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#f4f6f8}
-    .card{width:380px;background:#fff;padding:20px;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.06)}
-    input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ddd}
-    button{width:100%;padding:10px;border-radius:6px;border:0;background:#0b74de;color:#fff;font-weight:600}
-    .link{margin-top:12px;text-align:center}
-    .message{color:#b00020;min-height:18px;margin-top:8px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <div class="card">
-    <h2 style="margin:0 0 8px 0">Register</h2>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden m-0 p-4">
 
-    <input id="name" placeholder="Name">
-    <input id="username" placeholder="Username">
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-
-    <button id="btnRegister" type="button">Register</button>
-
-    <div class="link">
-      <small>Already have an account? <a href="index.html">Login here</a></small>
+    <!-- Ambient Background Watermark -->
+    <div class="bg-text">
+        <h1>REGISTER</h1>
     </div>
 
-    <p id="registerMessage" class="message"></p>
-  </div>
+    <!-- Animated Shuffling Accents -->
+    <div class="accents">
+        <div class="acc-card"></div>
+        <div class="acc-card"></div>
+        <div class="acc-card"></div>
+    </div>
 
-  <script src="js/register.js"></script>
+    <!-- Main Registration Interface -->
+    <div class="relative">
+        <!-- Pink Neon Top Light -->
+        <div class="top-light"></div>
+        
+        <!-- The Shimmer Card -->
+        <div class="login-card">
+            <div class="flex-grow">
+                <!-- Brand Identity -->
+                <div class="brand-icon">
+                    <svg class="w-5 h-5 text-[#ee83e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+                
+                <h2>Register Page</h2>
+                <p>Enter your Details.</p>
+
+                <!-- Registration Form with Four Fields -->
+                <form id="registerForm" class="space-y-4">
+    <div class="input-group">
+        <label>Full Name</label>
+        <input id="name" placeholder="Name" required>
+    </div>
+
+    <div class="input-group">
+        <label>Username</label>
+        <input id="username" placeholder="Username" required>
+    </div>
+    
+    <div class="input-group">
+        <label>Email</label>
+        <input id="email" placeholder="Email" required>
+    </div>
+
+    <div class="input-group">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="••••••••" required>
+    </div>
+
+    <button id="btnRegister" type="submit" class="btn-primary">
+        Register
+    </button>
+
+    <p class="text-[11px] text-slate-400">
+        Already Registered?
+        <a href="index.html" class="text-[#ee83e5] hover:underline">Login</a>
+    </p>
+</form>
+
+                
+            </div>
+
+            <p id="registerMessage" class="message"></p>
+            
+        </div>
+    </div>
+    <script src="js/register.js"></script>
 </body>
 </html>

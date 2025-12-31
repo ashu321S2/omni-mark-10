@@ -4,12 +4,14 @@ import com.blog.dto.CommentDto;
 import com.blog.dto.PostDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface PostService {
 
-    PostDto createPost(PostDto dto, String username);
+    // UPDATED: image support added
+    PostDto createPost(PostDto dto, MultipartFile image, String username);
 
     Page<PostDto> getAllPosts(Pageable pageable);
 

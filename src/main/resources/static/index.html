@@ -1,33 +1,80 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Login</title>
-  <style>
-    body{font-family:system-ui,Arial;margin:32px}
-    input,button{display:block;padding:8px;margin:8px 0;width:320px}
-    .message{color:#b00020}
-    .ok{color:#0b7a3f}
-    .links{margin-top:10px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login</title>
+    <!-- Tailwind CSS for layout utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <h2>Login</h2>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden m-0 p-4">
 
-  <input id="username" placeholder="Username" />
-  <input id="password" type="password" placeholder="Password" />
-  <button id="btnLogin" type="button">Login</button>
+    <!-- Ambient Background Watermark -->
+    <div class="bg-text">
+        <h1>Welcome </h1>
+    </div>
 
-  <p id="loginMessage" class="message"></p>
-  <p id="loginOk" class="ok"></p>
+    <!-- Animated Shuffling Accents -->
+    <div class="accents">
+        <div class="acc-card"></div>
+        <div class="acc-card"></div>
+        <div class="acc-card"></div>
+    </div>
 
-  <div class="links">
-    <p>Don't have an account? <a href="register.html">Register here</a></p>
-  </div>
+    <!-- Main Login Interface -->
+    <div class="relative">
+        <!-- Pink Neon Top Light -->
+        <div class="top-light"></div>
+        
+        <!-- The Shimmer Card -->
+        <div class="login-card">
+            <div class="flex-grow">
+                <!-- Brand Identity -->
+                <div class="brand-icon">
+                    <svg class="w-5 h-5 text-[#ee83e5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                
+                <h2>Login Page</h2>
+                <p>Enter Details To Login</p>
 
-  <script>
+                <!-- Auth Form -->
+                <form class="space-y-4">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input id="username" placeholder="Username" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="flex justify-between items-center">
+                            <label>Password</label>
+                        </div>
+                        <input id ="password" type="password" placeholder="••••••••" required>
+                    </div>
+
+                    <button id="btnLogin" type="button" class="btn-primary">
+                        Login
+                    </button>
+                     <p id="loginMessage" class="message"></p>
+                     <p id="loginOk" class="ok"></p>
+
+                    <div class="links">
+                       <p>Don't have an account? <a href="register.html" class="text-[#ee83e5] hover:underline">Register here</a></p>
+                    </div>
+
+                </form>
+            </div>
+
+            
+            
+        </div>
+    </div>
+    <script>
     // minimal login wiring — if you already have login.js keep using that
-    const API_BASE = "/api";
+    // Change this in your js/register.js file
+const API_BASE = "/api";
     document.getElementById('btnLogin').addEventListener('click', async () => {
       const msgEl = document.getElementById('loginMessage');
       msgEl.textContent = '';

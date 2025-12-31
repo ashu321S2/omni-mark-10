@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Ashu1495@
+      MYSQL_DATABASE: blogdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  blog-api:
+    image: blog-api:latest
+    container_name: blog-api
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/blogdb
+      DB_USERNAME: root
+      DB_PASSWORD: Ashu1495@
+      JWT_SECRET: 9f3c7b2a8e4d6f1c0a9b5e7d2c4f8a6b1e9d3c5f7a0b2d4e6c8a1f5b7
+      JWT_EXPIRATION_MS: 3600000
+
+volumes:
+  mysql_data:

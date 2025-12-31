@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-frontend
+  namespace: blog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog-frontend
+  template:
+    metadata:
+      labels:
+        app: blog-frontend
+    spec:
+      containers:
+        - name: blog-frontend
+          image: blogacr12345.azurecr.io/blog-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80

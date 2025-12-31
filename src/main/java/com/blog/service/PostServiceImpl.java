@@ -1,5 +1,5 @@
 package com.blog.service;
-
+import com.blog.entity.Post;
 import com.blog.dto.CommentDto;
 import com.blog.dto.PostDto;
 import com.blog.entity.Post;
@@ -11,14 +11,26 @@ import com.blog.repository.PostCommentRepository;
 import com.blog.repository.PostLikeRepository;
 import com.blog.repository.PostRepository;
 import com.blog.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
+import java.util.Base64;
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -28,8 +40,11 @@ public class PostServiceImpl implements PostService {
     private final PostLikeRepository likeRepository;
     private final PostCommentRepository commentRepository;
 
+    // =========================
+    // CREATE POST (TEXT + IMAGE)
+    // =========================
     @Override
-    public PostDto createPost(PostDto dto, String username) {
+    public PostDto createPost(PostDto dto, MultipartFile image, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -37,18 +52,51 @@ public class PostServiceImpl implements PostService {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .author(user)
+                .comments(0) // Initialize to avoid null
+                .likes(0)    // Initialize to avoid null
                 .build();
+
+        if (image != null && !image.isEmpty()) {
+            try {
+                // 1. Define the absolute path to the Azure PVC mount
+                String uploadDir = "/uploads/";
+                String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+                Path uploadPath = Paths.get(uploadDir);
+
+                // 2. Create directory if it doesn't exist
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // 3. Save the file to the disk
+                Path filePath = uploadPath.resolve(fileName);
+                Files.copy(image.getInputStream(), filePath);
+
+                // 4. Store the URL in the database (this is what the frontend will call)
+                // Example: /uploads/abc-123-image.jpg
+                post.setImageBase64("/uploads/" + fileName); 
+
+            } catch (IOException e) {
+                throw new RuntimeException("Could not save image file!", e);
+            }
+        }
 
         Post saved = postRepository.save(post);
         return mapToDto(saved);
     }
 
+    // =========================
+    // GET ALL POSTS
+    // =========================
     @Override
     public Page<PostDto> getAllPosts(Pageable pageable) {
         Page<Post> page = postRepository.findAllByOrderByCreatedAtDesc(pageable);
         return page.map(this::mapToDto);
     }
 
+    // =========================
+    // GET SINGLE POST
+    // =========================
     @Override
     public PostDto getPostById(Long id) {
         Post post = postRepository.findById(id)
@@ -56,6 +104,9 @@ public class PostServiceImpl implements PostService {
         return mapToDto(post);
     }
 
+    // =========================
+    // UPDATE POST (TEXT ONLY)
+    // =========================
     @Override
     public PostDto updatePost(Long id, PostDto dto, String username) {
         Post post = postRepository.findById(id)
@@ -72,18 +123,33 @@ public class PostServiceImpl implements PostService {
         return mapToDto(updated);
     }
 
+    // =========================
+    // DELETE POST (OWNER)
+    // =========================
     @Override
-    public void deletePost(Long id, String username) {
-        Post post = postRepository.findById(id)
+    @Transactional
+    public void deletePost(Long postId, String username) {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
-        if (post.getAuthor() == null || !post.getAuthor().getUsername().equals(username)) {
-            throw new RuntimeException("Not authorized to delete this post");
+        // Check ownership
+        if (!post.getAuthor().getUsername().equals(username)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access Denied");
         }
 
+        // 1. Manually clear child blockers
+        likeRepository.deleteByPost(post);
+        commentRepository.deleteByPost(post);
+
+        // 2. Safely delete the parent
         postRepository.delete(post);
     }
 
+
+
+    // =========================
+    // ADMIN DELETE
+    // =========================
     @Override
     public void adminDeletePost(Long id) {
         if (!postRepository.existsById(id)) {
@@ -92,7 +158,9 @@ public class PostServiceImpl implements PostService {
         postRepository.deleteById(id);
     }
 
-    // ---------- likes ----------
+    // =========================
+    // LIKES
+    // =========================
     @Override
     public void likePost(Long postId, String username) {
         Post post = postRepository.findById(postId)
@@ -100,7 +168,6 @@ public class PostServiceImpl implements PostService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // toggle like
         likeRepository.findByPostAndUser(post, user).ifPresentOrElse(
                 pl -> {
                     likeRepository.delete(pl);
@@ -123,11 +190,15 @@ public class PostServiceImpl implements PostService {
         return likeRepository.countByPost(post);
     }
 
-    // ---------- comments ----------
+    // =========================
+    // COMMENTS
+    // =========================
     @Override
+    @Transactional
     public CommentDto addComment(Long postId, String username, String content) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -138,18 +209,27 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         PostComment saved = commentRepository.save(comment);
-        // increment comments count on post for quick display
-        post.setComments(post.getComments() + 1);
-        postRepository.save(post);
+
+        // Ensure we don't hit a NullPointerException if post.comments is null
+     // SAFE: Handle null and calculate new count
+        Integer current = post.getComments();
+        post.setComments((current == null ? 0 : current) + 1);
+
+        // Save the post
+
+        
+        // Save the post so the database updates the count column
+        postRepository.save(post); 
 
         return CommentDto.builder()
                 .id(saved.getId())
                 .postId(post.getId())
                 .authorUsername(user.getUsername())
                 .content(saved.getContent())
-                .createdAt(saved.getCreatedAt())   // ensure CommentDto.createdAt type matches
+                .createdAt(saved.getCreatedAt())
                 .build();
     }
+
 
     @Override
     public List<CommentDto> getComments(Long postId) {
@@ -163,7 +243,7 @@ public class PostServiceImpl implements PostService {
                         .postId(post.getId())
                         .authorUsername(c.getUser().getUsername())
                         .content(c.getContent())
-                        .createdAt(c.getCreatedAt())   // ensure CommentDto.createdAt type matches
+                        .createdAt(c.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -175,20 +255,32 @@ public class PostServiceImpl implements PostService {
         return commentRepository.countByPost(post);
     }
 
-    // ---------- utility ----------
+    // =========================
+    // MAPPER
+    // =========================
     private PostDto mapToDto(Post post) {
         return PostDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .authorUsername(
-                        post.getAuthor() != null
-                                ? post.getAuthor().getUsername()
-                                : null
-                )
-                .createdAt(post.getCreatedAt())   // ensure PostDto.createdAt type matches
-                .likes(post.getLikes())
-                .comments(post.getComments())
-                .build();
+            .id(post.getId())
+            .title(post.getTitle())
+            .content(post.getContent())
+            .imageBase64(post.getImageBase64())
+
+            // 👇 AUTHOR INFO (FIX)
+            .authorUsername(
+                post.getAuthor() != null
+                    ? post.getAuthor().getUsername()
+                    : null
+            )
+            .authorId( // 🔥 ADD THIS
+                post.getAuthor() != null
+                    ? post.getAuthor().getId()
+                    : null
+            )
+
+            .createdAt(post.getCreatedAt())
+            .likes(post.getLikes())
+            .comments(post.getComments())
+            .build();
     }
+
 }

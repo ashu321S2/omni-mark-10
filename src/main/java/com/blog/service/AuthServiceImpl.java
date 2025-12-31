@@ -27,16 +27,25 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        String accessToken = jwtUtil.generateToken(user.getUsername(), 3600000); // 1h
-        String refreshToken = jwtUtil.generateToken(user.getUsername(), 604800000); // 7 days
+        String accessToken = jwtUtil.generateToken(user, 3600000); // 1h
+        String refreshToken = jwtUtil.generateToken(user, 604800000); // 7 days
 
         return new AuthResponse(accessToken, refreshToken, user.getUsername());
     }
 
     @Override
     public User register(User user) {
+        // 1. Check if username already exists to provide a clear error
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("Username is already taken");
+        }
+
+        // 2. Encode password
         user.setPassword(encoder.encode(user.getPassword()));
-        if (user.getRole() == null) user.setRole("ROLE_USER");
+        
+        // 3. Force default role regardless of what frontend sent
+        user.setRole("ROLE_USER"); 
+        
         return userRepository.save(user);
     }
 
@@ -48,8 +57,11 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String username = jwtUtil.getUsernameFromToken(refreshToken);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String newAccessToken = jwtUtil.generateToken(username, 3600000); // 1 hour
+        String newAccessToken = jwtUtil.generateToken(user, 3600000);
+
 
         return new AuthResponse(newAccessToken, refreshToken, username);
     }

@@ -1,78 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Blog - Posts</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* minimal styles so UI is usable if your CSS isn't present */
-    body{font-family:system-ui,Arial;margin:0;background:#f6f7f9}
-    .app-shell{display:grid;grid-template-columns:60px 1fr 260px;min-height:100vh}
-    .left-col{background:#fff;border-right:1px solid #e6e6e6;padding:16px;display:flex;align-items:flex-start;justify-content:center}
-    .plus-btn{font-size:24px;width:40px;height:40px;border-radius:8px;border:none;background:#0b74de;color:#fff;cursor:pointer}
-    .main-col{padding:18px}
-    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .profile-icon{cursor:pointer;padding:8px;border-radius:8px;background:#fff;border:1px solid #eee}
-    .create-area{background:#fff;padding:12px;border-radius:6px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    .create-area.hidden{display:none}
-    input,textarea{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ddd}
-    .create-actions{display:flex;gap:8px}
-    button{cursor:pointer;padding:8px 12px;border-radius:6px;border:0;background:#0b74de;color:#fff}
-    .posts-list{display:flex;flex-direction:column;gap:12px}
-    .post-card{background:#fff;padding:14px;border-radius:8px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-    .post-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px}
-    .post-content h4{margin:6px 0}
-    .post-actions button{margin-left:8px;background:#eef6ff;color:#0b74de;padding:6px;border-radius:6px;border:1px solid #d6eaff;font-size:13px}
-    .comments-section{margin-top:10px;border-top:1px solid #eee;padding-top:10px}
-    .comments-list .comment{background:#f8f9fb;padding:8px;border-radius:6px;margin-bottom:6px}
-    .comment-input-row{display:flex;gap:8px;align-items:flex-start}
-    .comment-input-row textarea{flex:1;height:58px}
-    .profile-menu{padding:12px;background:#fff;border-left:1px solid #e6e6e6}
-    .message{color:#b00020}
-  </style>
+    <meta charset="UTF-8" />
+    <title>Home Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style1.css" />
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="left-col">
-      <button id="btnNewPost" class="plus-btn" title="Create post">+</button>
-    </aside>
+    <div class="scanline"></div>
+    <div class="bg-watermark" id="watermark">Omni Mark 10</div>
 
-    <main class="main-col">
-      <header class="topbar">
-        <div class="brand"><strong>Blog App</strong></div>
-        <div>
-          <button id="profileBtn" class="profile-icon">👤</button>
+    <nav>
+        <div class="logo">Omni Mark 10</div>
+        <div class="nav-links">
+            <a href="#" id="btnNewPost">+ New Post</a>
+            <a href="developed.html">About</a>
+            <a href="portfolio.html">Contact</a>
+            <a href="#" id="profileBtn">👤 <span id="navUsername"></span></a>
+            <a href="index.html" id="btnLogout">Logout</a>
         </div>
-      </header>
+    </nav>
 
-      <section id="createArea" class="create-area hidden">
-        <h3 id="createHeading">Create Post</h3>
-        <input id="title" placeholder="Title">
-        <textarea id="content" rows="4" placeholder="Write your post..."></textarea>
-        <div class="create-actions">
-          <button id="btnSubmitPost" type="button">Post</button>
-          <button id="btnCancelPost" type="button" style="background:#777">Cancel</button>
-        </div>
-        <p id="postsMessage" class="message"></p>
-      </section>
-
-      <section id="postsList" class="posts-list"></section>
+    <main class="hero-section">
+        <h2 class="section-title">Latest Updates</h2>
+        <div class="carousel" id="mainCarousel"></div>
     </main>
 
-    <aside class="right-col">
-      <div id="profileMenu" class="profile-menu hidden">
-        <div>
-          <div id="profileUsername"><strong>Username</strong></div>
-          <div id="profileEmail" style="color:#666;font-size:13px">email@example.com</div>
-        </div>
-        <div style="margin-top:12px">
-          <button id="btnLogout" type="button" style="background:#e74c3c">Logout</button>
-        </div>
-      </div>
-    </aside>
-  </div>
+    <h2 class="section-title">Earlier Posts</h2>
+    <section class="archive-section" id="postsList"></section>
 
-  <script src="js/posts.js"></script>
+    <div class="post-modal" id="postModal">
+        <div class="post-modal-backdrop"></div>
+        <div class="post-modal-box vault-box">
+            <button class="close-modal" id="closeModal">✕</button>
+            <div class="modal-body">
+                <div id="modalImageContainer" style="margin-bottom: 20px; display: none;">
+                    <img id="modalImage" src="" alt="" style="width: 100%; border-radius: 12px; max-height: 280px; object-fit: cover;">
+                </div>
+                <div class="label-text">Post Details</div>
+                <div class="post-meta-tags" style="font-size: 0.8rem; margin-bottom: 10px; color: #888;">
+                    <span id="modalAuthor" style="color: var(--accent);"></span> • <span id="modalDate"></span>
+                </div>
+                <h2 id="modalTitle" class="cyber-title"></h2>
+                <p id="modalContent" class="cyber-para" style="margin-bottom: 25px;"></p>
+
+                <div class="modal-actions" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button id="modalLikeBtn">❤️ Like</button>
+                    <button id="modalDeleteBtn" class="danger hidden">🗑️ Delete</button>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
+
+                <div class="comments-container">
+                    <div class="label-text" style="margin-bottom: 15px;">Comments</div>
+                    <div id="modalCommentsList" style="max-height: 200px; overflow-y: auto; padding-right: 10px; margin-bottom: 20px;"></div>
+                    <div class="comment-input-wrapper" style="display: flex; flex-direction: column; gap: 10px;">
+                        <textarea id="modalCommentInput" placeholder="Write a Comment..." rows="2"></textarea>
+                        <button id="modalCommentSubmit" style="align-self: flex-end;">Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-modal" id="createArea">
+        <div class="post-modal-backdrop"></div>
+        <div class="post-modal-box vault-box">
+            <h2 class="cyber-title" style="margin-bottom: 20px;">Secure Upload</h2>
+            <div class="label-text">HEADING</div>
+            <input id="title" type="text" placeholder="Entry Heading">
+            <div class="label-text">MESSAGE</div>
+            <textarea id="content" rows="5" placeholder="Write your protocol content..."></textarea>
+            <div class="label-text">IMAGE (OPTIONAL)</div>
+            <input type="file" id="postImage" accept="image/*">
+            <p id="postsMessage" class="message" style="font-size: 0.7rem; color: var(--accent);"></p>
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button id="btnSubmitPost">Post</button>
+                <button id="btnCancelPost" style="border-color: #444; color: #888;">Abort</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/posts.js"></script>
 </body>
 </html>

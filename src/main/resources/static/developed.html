@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+     <link rel="stylesheet" href="css/style1.css" />
+    <style>
+        @import url("https://fonts.cdnfonts.com/css/mona-sans");
+        :root {
+            --bg-dark: #0f0e17;
+            --card-gradient: linear-gradient(145deg, rgba(40,44,52,1) 0%, rgba(20,10,35,1) 100%);
+            --accent-pink: #ee83e5;
+            --text-muted: #a89ec9;
+        }
+        body {
+            font-family: "Mona Sans", sans-serif;
+            background-color: var(--bg-dark);
+            color: #eee;
+            padding: 100px 20px;
+        }
+        .dev-container { max-width: 900px; margin: auto; }
+        .detail-box {
+            position: relative;
+            background: var(--card-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 45px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            transition: 0.5s;
+        }
+        .top-light {
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 35%; height: 3px;
+            background: #fffef9;
+            box-shadow: 0 0 15px var(--accent-pink);
+            opacity: 0.2;
+            transition: 0.5s;
+        }
+        .detail-box:hover { transform: translateY(-8px); border-color: rgba(238, 131, 229, 0.4); }
+        .detail-box:hover .top-light { opacity: 1; width: 60%; }
+        .code-snippet {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #d1d1d1;
+            border-left: 3px solid var(--accent-pink);
+        }
+    </style>
+</head>
+<body>
+      <nav>
+        <div class="logo">Omni Mark 10</div>
+        <div class="nav-links">
+            
+            <a href="posts.html">Home</a>
+            <a href="developed.html">About</a>
+            <a href="portfolio.html">Contact</a>
+            <a href="#" id="profileBtn">👤 <span id="navUsername"></span></a>
+            <a href="index.html" id="btnLogout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dev-container">
+        <header class="text-center mb-16">
+            <h1 class="text-5xl font-extrabold tracking-tighter mb-4">HOW IT'S BUILT</h1>
+            <p class="text-pink-400 tracking-widest uppercase text-sm">Full-Stack Java Blog API & Frontend</p>
+        </header>
+
+        <div class="detail-box">
+            <div class="top-light"></div>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-pink-400">01.</span> Backend Architecture
+            </h2>
+            <p class="text-[var(--text-muted)] leading-relaxed mb-6">
+                The backbone of Kiberbash is a **Spring Boot REST API**. I organized the source code using a professional package structure including **Controllers**, **Services**, and **Repositories** to ensure high maintainability.
+            </p>
+            <div class="code-snippet mb-6">
+                com.blog.controller -> Entry points<br>
+                com.blog.service -> Business logic<br>
+                com.blog.repository -> MySQL Database access
+            </div>
+            <ul class="space-y-3 text-sm text-gray-300">
+                <li>✔ **JWT Security**: Managed via <code>JwtAuthenticationFilter</code> for secure user sessions.</li>
+                <li>✔ **Exception Handling**: Implemented a <code>GlobalExceptionHandler</code> for clean API responses.</li>
+                <li>✔ **Persistence**: Powered by **Spring Data JPA** and **MySQL**.</li>
+            </ul>
+        </div>
+
+        <div class="detail-box">
+            <div class="top-light"></div>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span class="text-pink-400">02.</span> Interactive Frontend
+            </h2>
+            <p class="text-[var(--text-muted)] leading-relaxed mb-6">
+                The frontend is built with a custom glassmorphism design. It allows users to register, login, and view the "Latest Updates" feed which is populated dynamically from the Java backend.
+            </p>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h4 class="text-pink-400 font-bold text-xs uppercase mb-2">Image Posting</h4>
+                    <p class="text-xs">Supports Multipart file uploads to pair blog content with high-quality imagery.</p>
+                </div>
+                <div class="p-4 bg-white/5 rounded-lg border border-white/10">
+                    <h4 class="text-pink-400 font-bold text-xs uppercase mb-2">API Documentation</h4>
+                    <p class="text-xs">Integrated **Swagger UI** for real-time testing of all REST endpoints.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-box">
+            <div class="top-light"></div>
+            <h2 class="text-2xl font-bold mb-8">Technical Specifications</h2>
+            <table class="w-full text-left text-sm">
+                <tr class="border-b border-white/10">
+                    <th class="py-3 text-pink-400">Role</th>
+                    <th class="py-3 text-pink-400">Technology</th>
+                </tr>
+                <tr><td class="py-3">Language</td><td>Java 17+</td></tr>
+                <tr><td class="py-3">Framework</td><td>Spring Boot</td></tr>
+                <tr><td class="py-3">Auth</td><td>JWT + Spring Security</td></tr>
+                <tr><td class="py-3">Database</td><td>MySQL</td></tr>
+                <tr><td class="py-3">Documentation</td><td>Swagger / OpenAPI</td></tr>
+                <tr><td class="py-3">Testing</td><td>JUnit + MockMvc</td></tr>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

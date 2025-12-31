@@ -12,4 +12,9 @@ public class PostDto {
     private LocalDateTime createdAt;
     private int likes;
     private int comments;
+    private String imageBase64;
+    private Long authorId;
+
+
+
 }

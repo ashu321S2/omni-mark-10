@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: blog-ingress
+  namespace: blog
+  annotations:
+    kubernetes.azure.com/ingress.class: webapprouting.kubernetes.azure.com
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: webapprouting.kubernetes.azure.com
+  tls:
+    - hosts:
+        - omni-mark-10.duckdns.org
+      secretName: duckdns-tls
+  rules:
+    - host: omni-mark-10.duckdns.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: blog-frontend
+                port:
+                  number: 80
+
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: blog-api
+                port:
+                  number: 80
+
+          - path: /uploads
+            pathType: Prefix
+            backend:
+              service:
+                name: blog-api
+                port:
+                  number: 80

@@ -25,6 +25,7 @@ public class CommentServiceImpl implements CommentService {
     private final PostCommentRepository commentRepo;
 
     @Override
+    @Transactional
     public List<CommentDto> getComments(Long postId) {
         Post post = postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
@@ -34,15 +35,16 @@ public class CommentServiceImpl implements CommentService {
                 .map(c -> CommentDto.builder()
                         .id(c.getId())
                         .postId(post.getId())
-                        .authorUsername(c.getUser().getUsername())
+                        .authorUsername(c.getUser().getUsername()) // SAFE now
                         .content(c.getContent())
                         .createdAt(c.getCreatedAt())
                         .build()
                 )
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(Long postId, String username, String content) {
         Post post = postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
@@ -57,10 +59,18 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         PostComment saved = commentRepo.save(comment);
+
+        // Ensure we don't hit a NullPointerException if post.comments is null
+     // SAFE: Handle null and calculate new count
         Integer current = post.getComments();
-        if (current == null) current = 0;
-        post.setComments(current + 1);
+        post.setComments((current == null ? 0 : current) + 1);
+
+        // Save the post
+
+        
+        // Save the post so the database updates the count column
         postRepo.save(post); 
+
         return CommentDto.builder()
                 .id(saved.getId())
                 .postId(post.getId())

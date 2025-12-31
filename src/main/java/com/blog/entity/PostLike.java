@@ -23,7 +23,8 @@ public class PostLike {
     private User user;
 
     private LocalDateTime createdAt;
-
+    
+    
     @PrePersist
     void prePersist(){ createdAt = LocalDateTime.now(); }
 }

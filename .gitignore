@@ -1,33 +1,66 @@
-HELP.md
-target/
+# Maven / Java
+/target/
+!/target/*.jar
+/out/
+
+/.mvn/wrapper/maven-wrapper.jar
+
+# Maven wrapper logs (optional)
 .mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# IDEs
+/.idea/
+/*.iml
+/.classpath
+/.project
+/.settings/
+*.sublime-project
+*.sublime-workspace
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# Eclipse specific
+/.metadata/
+/bin/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# IntelliJ
+/.idea/
+/*.iml
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env files and secrets
+.env
+*.secret
+application-*.properties
+application-local.properties
+
+# Database files
+*.db
+*.sql.gz
+
+# Build outputs
+build/
+dist/
+
+# Temporary files
+*.tmp
+*~
+
+# Node (if any)
+node_modules/
+
+# Docker
+docker-compose.override.yml
+
+# Generated sources (if you use them)
+/generated/
+
+# Ignore jar produced during local builds (if you prefer)
+/target/*.jar

@@ -8,12 +8,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -22,35 +23,55 @@ public class PostController {
 
     private final PostService postService;
 
-    // Create Post (Authenticated users)
-    @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto dto, Principal principal) {
-        PostDto created = postService.createPost(dto, principal.getName());
+    // =========================
+    // CREATE POST (TEXT + IMAGE)
+    // =========================
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostDto> createPost(
+            @RequestParam("title") String title,
+            @RequestParam("content") String content,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            Principal principal) {
+
+        PostDto dto = new PostDto();
+        dto.setTitle(title);
+        dto.setContent(content);
+
+        PostDto created = postService.createPost(dto, image, principal.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // Get All Posts (with Pagination + Sorting) - default newest first
+    // =========================
+    // GET ALL POSTS (PAGINATED)
+    // =========================
     @GetMapping
     public ResponseEntity<Page<PostDto>> getAllPosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+
         return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
- // Like a post (toggle). Authenticated.
+
+    // =========================
+    // LIKE / UNLIKE POST
+    // =========================
     @PostMapping("/{id}/like")
     public ResponseEntity<?> likePost(@PathVariable("id") Long id, Principal principal) {
         postService.likePost(id, principal.getName());
         return ResponseEntity.ok().build();
     }
 
-    
-
-    // Get Single Post
+    // =========================
+    // GET SINGLE POST
+    // =========================
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long id) {
         return ResponseEntity.ok(postService.getPostById(id));
     }
 
-    // Update Post (User can update only their post)
+    // =========================
+    // UPDATE POST (TEXT ONLY)
+    // =========================
     @PutMapping("/{id}")
     public ResponseEntity<PostDto> updatePost(
             @PathVariable Long id,
@@ -62,14 +83,18 @@ public class PostController {
         );
     }
 
-    // Delete Post (User can delete only their post)
+    // =========================
+    // DELETE POST (OWNER)
+    // =========================
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id, Principal principal) {
         postService.deletePost(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
 
-    // ADMIN DELETE ROUTE — can delete ANY post
+    // =========================
+    // ADMIN DELETE (ANY POST)
+    // =========================
     @DeleteMapping("/admin/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> adminDeletePost(@PathVariable Long id) {
